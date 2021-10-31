@@ -18,7 +18,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password',
     ];
-
+    protected  $appends = ['personalImage'];
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -36,4 +36,20 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public function friends()
+    {
+        return $this->belongsToMany('App\User', 'users_friends', 'user_id', 'friend_id');
+    }
+    public function personalImage()
+    {
+        return $this->morphOne('App\Models\File', 'fileable');
+    }
+    public function getPersonalImageAttribute()
+    {
+        if ($this->personalImage()->exists()) {
+            return $this->personalImage()->latest()->first()->path;
+        } else {
+            return '/img/users/default.png';
+        }
+    }
 }
