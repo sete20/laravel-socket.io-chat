@@ -1,37 +1,68 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="row chat-row">
-    <div class="col-md-3">
-        <div class="users">
-            <h5>users</h5>
-            <ul class="list-group list-chat-item">
-                @forelse($users as $user)
-                         <li class="chat-user-list" >
-                    <a href="#">
-                        <div class="chat-image">
-                            <div class="name-image ">
-                         <img class="chat-photo" src="{{ asset($user->personalImage) }}" alt="">
+    <div class="row chat-row">
+        <div class="col-md-3">
+            <div class="users">
+                <h5>users</h5>
+                <ul class="list-group list-chat-item">
+                    @forelse($users as $user)
+                        <li class="chat-user-list">
+                            <a href="{{ route('message.conversation', $user->id) }}">
+                                <div class="chat-image">
+                                    <img class="chat-photo" src="{{ asset('img/users/' . $user->personalImage) }}"
+                                        alt="">
+                                    <i class="fa fa-circle user-status-icon user-icon-{{ $user->id }}" title="away"></i>
+                                </div>
+                                <div class="chat-name font-weight-bold">
+                                    {{ $user->name }}
+                                </div>
 
-                            </div>
-                        </div>
-                       {{  $user->name }}
+                            </a>
+                        </li>
+                    @empty
+                        .... please add more friends
+                    @endforelse
 
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <h1>
+                Message Section
+            </h1>
 
-                    </a>
-                </li>
-                @empty
-                .... please add more friends
-                @endforelse
-
-            </ul>
+            <p class="lead">
+                Select user from the list to begin conversation.
+            </p>
         </div>
     </div>
-        <div class="col-md-9">
+    @push('scripts')
+        <script>
+            $(function() {
+                let ip_address = '127.0.0.1';
+                let socket_port = '8005';
+                let socket = io(ip_address + ':' + socket_port);
 
-    </div>
-</div>
-@push('scripts')
+                socket.on('connect', function() {
+                    socket.emit('user_connected', "{{ auth()->user()->id }}");
+                });
+                socket.on('updateUserStatus', (data) => {
+                    console.log(data);
+                    let $userStatusIcon = $(".user-status-icon");
+                    $userStatusIcon.removeClass('text-succuess');
+                    $userStatusIcon.attr('title', 'Away');
 
-@endpush
+                    $.each(data, function(key, val) {
+                        if (val !== null && val !== 0) {
+                            console.log(key);
+                            let $userIcon = $(".user-icon-" + key);
+                            $userIcon.addClass('text-succuess');
+                            $userIcon.attr('title', 'Active');
+                        }
+                    });
+                });
+            });
+        </script>
+    @endpush
 @endsection

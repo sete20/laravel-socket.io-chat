@@ -38,8 +38,9 @@ class User extends Authenticatable
     ];
     public function friends()
     {
-        return $this->belongsToMany('App\User', 'users_friends', 'user_id', 'friend_id');
+        return $this->belongsToMany('App\User', 'users_friends', 'user_id', 'friend_id')->withPivot('friend_id');
     }
+
     public function personalImage()
     {
         return $this->morphOne('App\Models\File', 'fileable');
@@ -49,7 +50,7 @@ class User extends Authenticatable
         if ($this->personalImage()->exists()) {
             return $this->personalImage()->latest()->first()->path;
         } else {
-            return '/img/users/default.png';
+            return 'default.png';
         }
     }
 }
