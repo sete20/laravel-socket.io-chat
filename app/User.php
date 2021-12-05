@@ -53,4 +53,12 @@ class User extends Authenticatable
             return 'default.png';
         }
     }
+    public function messages()
+    {
+        return $this->hasMany(message::class, 'sender_id');
+    }
+    public function receivedMessages()
+    {
+        return $this->hasMany(message::class, 'receiver_id');
+    }
 }

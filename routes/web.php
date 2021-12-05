@@ -17,7 +17,7 @@ use Predis\Client;
 Route::get('/test', function () {
     // $redis = new \Predis\Client();
     // return $redis->ping();
-
+    return $user = User::find(1)->with(['receivedMessages', 'messages'])->first();
 });
 Route::get('/', function () {
     return view('welcome');

@@ -37,7 +37,7 @@
 
                 <div class="chat-name font-weight-bold">
                     {{ $user->name }}
-                    <i class="fa fa-circle user-status-head-{{ $user->id }} " title="away"
+                    <i class="fa fa-circle  user-icon-{{ $user->id }} " title="away"
                         id="userStatusHead{{ $user->id }}"></i>
                 </div>
             </div>
@@ -47,12 +47,13 @@
                     <div class="message-listing" id="messageWrapper">
                         <div class="row message align user-info">
                             <div class="chat-image">
-                                <img class="chat-photo" src="{{ asset('/img/users/' . $user->personalImage) }}"
-                                    alt="">
+                                <img class="chat-photo"
+                                    src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
                             </div>
                             <div class="chat-name font-weight-bold">
 
-                                <span class="text-gray-500 small time">2021</span>
+                                <span class="text-gray-500 small time">{{ $message->sender->name }} -
+                                    {{ $message->created_at->diffForHumans() }}</span>
                             </div>
                         </div>
                         <div class="col-md12 message-contnet">
@@ -188,14 +189,33 @@
                     $messageWrapper.append(newMessage);
 
                 } //end  append message to sender
+
+
                 socket.on("private-channel:App\\Events\\PrivateMessageEvent", function(message) {
                     appendToReceiver(message)
                 }); //end on event
                 function appendToReceiver(message) {
-                    let name = "{{ $user->name }}";
-                    let image = "{{ asset('img/users/' . $user->personalImage) }}";
-                    console.log('appended to Receiver');
-
+                    let name = message.sender_name;
+                    let image = message.personal_image;
+                    userInfo = '<div class="col-md-12 user-info">\n' +
+                        '<div class="chat-image">\n' +
+                        '<img class="chat-photo" src="{{ asset('img/users/' . auth()->user()->personalImage) }}">\n' +
+                        '</div>\n' +
+                        '\n' +
+                        '<div class="chat-name font-weight-bold">\n' +
+                        name +
+                        '<span class="text-gray-500 small time" title="' + dateFormat(message.created_at) + '">\n' +
+                        timeFormat(message.created_at) + '</span>\n' +
+                        '</div>\n' +
+                        '</div>\n';
+                    let messageContent = '<div class="col-md-12 message-content">\n' +
+                        '                            <div class="message-text">\n' + message.content +
+                        '                            </div>\n' +
+                        '                        </div>';
+                    let newMessage = '<div class="mb-2 row message align-items-center">' +
+                        userInfo + messageContent +
+                        '</div>';
+                    $messageWrapper.append(newMessage);
                 } //end  append message to Receiver
             });
         </script>
