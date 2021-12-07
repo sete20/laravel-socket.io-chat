@@ -7,6 +7,7 @@
                 <h5>users</h5>
                 <ul class="list-group list-chat-item">
                     @forelse($users as $userList)
+
                         <li class="chat-user-list @if ($userList->id == $user->id)  active @endif">
                             <a href="{{ route('message.conversation', $userList->id) }}">
                                 <div class="chat-image">
@@ -30,7 +31,7 @@
         </div>
         <div class="col-md-9 chat-section">
             <div class="chat-header">
-                <div class="chat-image">
+                <div class="chat-image chat-image-header">
                     <img class="chat-photo" src="{{ asset('/img/users/' . $user->personalImage) }}" alt="">
                 </div>
 
@@ -43,52 +44,58 @@
 
             <div class="chat-body" id="chatBody">
                 @foreach ($messages as $message)
-                    @if ($message->sender_id !== Auth::user()->id)
+                    <div class>
+                        @if ($message->sender_id == auth()->user()->id)
+                            <div class="message-listing messageFlex" id="messageWrapper">
+                                <div class="row message align user-info">
+                                    <div class="chat-image">
+                                        <img class="chat-photo"
+                                            src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="chat-name font-weight-bold">
 
-                        <div class="message-listing" id="messageWrapper">
-                            <div class="row message align user-info">
-                                <div class="chat-image">
-                                    <img class="chat-photo" src="{{ asset('/img/users/' . $user->personalImage) }}"
-                                        alt="">
-                                </div>
-                                <div class="chat-name font-weight-bold">
-                                    <span class="text-gray-500 small time">{{ $message->sender->name }}</span>
-                                    <br>
-                                    <span class="text-gray-500 small time">{{ $message->created_at }}</span>
-
-                                </div>
-                            </div>
-                            <div class="col-md12 message-contnet">
-                                <div class="message-text">
-                                    {{ $message->content }}
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="message-listing recever" id="messageWrapper">
-                            <div class="row message align user-info">
-                                <div class="chat-image">
-                                    <img class="chat-photo" src="{{ asset('/img/users/' . $user->personalImage) }}"
-                                        alt="">
-                                </div>
-                                <div class="d-flex flex-column">
-                                    <div class="chat-name font-weight-bold">
-                                        <span class="text-gray-500 small time">{{ $message->sender->name }}</span>
-                                        <br>
-                                        <span class="text-gray-500 small time">{{ $message->created_at }}</span>
-
+                                            <span class="text-gray-500 small time">{{ $message->sender->name }} -
+                                                {{ $message->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="col-md12 message-contnet">
+                                            <div class="message-text">
+                                                {{ $message->content }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md12 message-contnet">
-                                    <div class="message-text">
-                                        {{ html_entity_decode($message->content) }}
+
+                            </div>
+
+                        @else
+                            <div class="message-listing messageFlex recever" id="messageWrapperReceiver">
+                                <div class="row message align user-info">
+                                    <div class="chat-image">
+                                        <img class="chat-photo"
+                                            src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="chat-name font-weight-bold">
+
+                                            <span class="text-gray-500 small time">{{ $message->sender->name }} -
+                                                {{ $message->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="col-md12 message-contnet">
+                                            <div class="message-text">
+                                                {{ $message->content }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                    @endif
+                            </div>
+                        @endif
+
+                    </div>
+
                 @endforeach
+
 
             </div>
 
@@ -116,8 +123,6 @@
         </div>
     </div>
 
-
-
     @push('scripts')
         <script>
             // message.conversation
@@ -128,6 +133,7 @@
                 let $chatBody = $('.chat-body');
                 let receiver_id = "{{ $user->id }}";
                 let $messageWrapper = $('#messageWrapper');
+                let $messageWrapperReseiver = $('#messageWrapperReceiver');
 
                 let ip_address = '127.0.0.1';
                 let socket_port = '8005';
@@ -228,9 +234,10 @@
                         '<img class="chat-photo" src="{{ asset('img/users/' . auth()->user()->personalImage) }}">\n' +
                         '</div>\n' +
                         '\n' +
+                        '<div class="d-flex flex-column">\n' +
                         '<div class="chat-name font-weight-bold">\n' +
                         name +
-                        '<span class="text-gray-500 small time" title="' + dataFormat(message.created_at) + '">\n' +
+                        '<span class="text-gray-500 small time" title="' + dateFormat(message.created_at) + '">\n' +
                         timeFormat(message.created_at) + '</span>\n' +
                         '</div>\n' +
                         '</div>\n';
@@ -241,7 +248,9 @@
                     let newMessage = '<div class="mb-2 row message align-items-center">' +
                         userInfo + messageContent +
                         '</div>';
-                    $messageWrapper.append(newMessage);
+                    '</div>\n';
+
+                    $messageWrapperReseiver.append(newMessage);
                 } //end  append message to Receiver
             });
         </script>

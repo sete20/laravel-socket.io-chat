@@ -42,10 +42,9 @@ redis.on('message', function   (channel,message) {
         // console.log(message);
         let data =  JSON.parse(message).data.data;
         let receiver_id = data.receiver_id;
-       console.log(data);
         let event = JSON.parse(message).event;
         console.log(data.content);
-        // console.log(event);
+        console.log(event);
         io.to(`${users[receiver_id]}`).emit(channel + ':' + event, data);
     }
 
@@ -63,5 +62,11 @@ io.on('connection', function (socket) {
         io.emit('updateUserStatus', users);
         console.log('user id'+i+' is disconnected and remaining users is '+ users);
     });
-});
+    socket.on('joinGroup', function (data) {
+        data['socket_id' ]= socket.id;
+        if (groups[data.group_id]) {
 
+        }
+    });
+
+});

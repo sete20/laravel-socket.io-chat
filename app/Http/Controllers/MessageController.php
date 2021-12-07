@@ -90,7 +90,7 @@ class MessageController extends Controller
             try {
                 $data = [];
                 $data['group_id'] = $message->group_id;
-                $data['sender_name'] = $message->group->name;
+                $data['sender_name'] = $message->sender->name;
                 $data['group_image'] = asset('img/users/' . $message->group->GroupImage);
                 $data['sender_personal_image'] = asset('img/users/' . $message->sender->personalImage);
                 $data['group_id'] = $message->group->id;

@@ -43,25 +43,58 @@
 
             <div class="chat-body" id="chatBody">
                 @foreach ($messages as $message)
-                    <div class="message-listing" id="messageWrapper">
-                        <div class="row message align user-info">
-                            <div class="chat-image">
-                                <img class="chat-photo"
-                                    src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
-                            </div>
-                            <div class="chat-name font-weight-bold">
+                    <div class>
+                        @if ($message->sender_id == auth()->user()->id)
+                            <div class="message-listing messageFlex" id="messageWrapper">
+                                <div class="row message align user-info">
+                                    <div class="chat-image">
+                                        <img class="chat-photo"
+                                            src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="chat-name font-weight-bold">
 
-                                <span class="text-gray-500 small time">{{ $message->sender->name }} -
-                                    {{ $message->created_at->diffForHumans() }}</span>
+                                            <span class="text-gray-500 small time">{{ $message->sender->name }} -
+                                                {{ $message->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="col-md12 message-contnet">
+                                            <div class="message-text">
+                                                {{ $message->content }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                        </div>
-                        <div class="col-md12 message-contnet">
-                            <div class="message-text">
-                                {{ $message->content }}
+
+                        @else
+                            <div class="message-listing messageFlex recever" id="messageWrapperReceiver">
+                                <div class="row message align user-info">
+                                    <div class="chat-image">
+                                        <img class="chat-photo"
+                                            src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <div class="chat-name font-weight-bold">
+
+                                            <span class="text-gray-500 small time">{{ $message->sender->name }} -
+                                                {{ $message->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <div class="col-md12 message-contnet">
+                                            <div class="message-text">
+                                                {{ $message->content }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                             </div>
-                        </div>
+                        @endif
+
                     </div>
+
                 @endforeach
+
 
             </div>
 
@@ -136,6 +169,10 @@
             let socket = io(ip_iddress + ':' + socket_port);
             socket.on('connect', function() {
                 socket.emit('user_connected', "{{ auth()->user()->id }}");
+                socket.emit('joinGroup', group_id: "{{ $group->id }}", user_id: "{{ auth()->user()->id }}",
+                    room: "group" +
+                    "{{ $group->id }}");
+
             });
             socket.on('updateUserStatus', (data) => {
                 let $userStatusIcon = $(".user-icon-" + "{{ $userList->id }}");
@@ -147,37 +184,94 @@
                         $userStatusIcon.attr('title', 'Active');
                     }
                 });
-                $chatInput.keypress(function(e) {
-                    let message = $(this).html();
-                    if (e.which === 13 && !e.shiftKey && message !== null) {
-                        $chatInput.html('');
-                        sendMessage(message);
-                        return false;
-                    }
-                });
 
-                function sendMessage(message) {
-                    let url = "{{ route('group.message.store', $group->id) }}";
-                    let form = $(this);
-                    let formData = new FormData();
-                    formData.append('_token', '{{ csrf_token() }}');
-                    formData.append('content', message);
-                    $.ajax({
-                        url: url,
-                        type: 'post',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        dataType: "JSON",
-                        success: function(res) {
-                            if (res.success) {
-                                console.log(res);
-                            }
-                        }
-
-                    });
+            });
+            $chatInput.keypress(function(e) {
+                let message = $(this).html();
+                if (e.which === 13 && !e.shiftKey && message !== null) {
+                    $chatInput.html('');
+                    sendMessage(message);
+                    return false;
                 }
             });
+
+            function sendMessage(message) {
+                let url = "{{ route('group.message.store', $group->id) }}";
+                let form = $(this);
+                let formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('content', message);
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: "JSON",
+                    success: function(response) {
+                        if (response.success) {
+                            console.log(response.data);
+                            appendToSender(response.data.content);
+                        }
+                    }
+                });
+            }
+
+            function appendToSender(message) {
+                let name = "{{ auth()->user()->name }}";
+                let $image = "{{ asset('img/users/' . auth()->user()->personalImage) }}";
+                userInfo = '<div class="col-md-12 user-info">\n' +
+                    '<div class="chat-image">\n' +
+                    '<img class="chat-photo" src="{{ asset('img/users/' . auth()->user()->personalImage) }}">\n' +
+                    '</div>\n' +
+                    '\n' +
+                    '<div class="chat-name font-weight-bold">\n' +
+                    name +
+                    '<span class="text-gray-500 small time" title="' + getCurrentDateTime() + '">\n' +
+                    getCurrentTime() + '</span>\n' +
+                    '</div>\n' +
+                    '</div>\n';
+                let messageContent = '<div class="col-md-12 message-content">\n' +
+                    '                            <div class="message-text">\n' + message +
+                    '                            </div>\n' +
+                    '                        </div>';
+                let newMessage = '<div class="mb-2 row message align-items-center">' +
+                    userInfo + messageContent +
+                    '</div>';
+                $messageWrapper.append(newMessage);
+
+            } //end  append message to sender
+
+            socket.on("group-message:App\\Events\\GroupMessageEvent", function(message) {
+                appendToReceiver(message);
+            });
+
+            function appendToReceiver(message) {
+                let name = message.sender_name;
+                let image = message.personal_image;
+                userInfo = '<div class="col-md-12 user-info">\n' +
+                    '<div class="chat-image">\n' +
+                    '<img class="chat-photo" src="{{ asset('img/users/' . auth()->user()->personalImage) }}">\n' +
+                    '</div>\n' +
+                    '\n' +
+                    '<div class="d-flex flex-column">\n' +
+                    '<div class="chat-name font-weight-bold">\n' +
+                    name +
+                    '<span class="text-gray-500 small time" title="' + dateFormat(message.created_at) + '">\n' +
+                    timeFormat(message.created_at) + '</span>\n' +
+                    '</div>\n' +
+                    '</div>\n';
+                let messageContent = '<div class="col-md-12 message-content">\n' +
+                    '                            <div class="message-text">\n' + message.content +
+                    '                            </div>\n' +
+                    '                        </div>';
+                let newMessage = '<div class="mb-2 row message align-items-center">' +
+                    userInfo + messageContent +
+                    '</div>';
+                '</div>\n';
+
+                $messageWrapper.append(newMessage);
+            }
         </script>
     @endpush
 @endsection
