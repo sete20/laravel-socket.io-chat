@@ -17,7 +17,7 @@ use Predis\Client;
 Route::get('/test', function () {
     // $redis = new \Predis\Client();
     // return $redis->ping();
-    return $user = User::find(1)->with(['receivedMessages', 'messages'])->first();
+    return $user = User::find(1)->with(['groups', 'receivedMessages', 'messages'])->first();
 });
 Route::get('/', function () {
     return view('welcome');
@@ -32,3 +32,5 @@ route::get('optimize', function () {
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('conversation/{user}', 'MessageController@conversation')->name('message.conversation')->middleware('auth');
 Route::post('message/create', 'MessageController@store')->name('message.store')->middleware('auth');
+Route::get('group/conversation/{group}', 'MessageController@group_conversation')->name('group.message.conversation')->middleware('auth');
+Route::post('group/message/create/{group}', 'MessageController@group_store')->name('group.message.store')->middleware('auth');

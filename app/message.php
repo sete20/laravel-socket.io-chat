@@ -8,14 +8,10 @@ class message extends Model
 {
     protected $guarded = [];
 
-    public function Users()
-    {
-        return $this->belongsToMany(User::class, 'user_messages', 'message_id', 'sender_id')
-            ->withTimestamps();
-    }
-    // public function message()
+    // public function Users()
     // {
-    //     return $this->belongsTo(message::class);
+    //     return $this->belongsToMany(User::class, 'user_messages', 'message_id', 'sender_id')
+    //         ->withTimestamps();
     // }
     public function receiver()
     {
@@ -24,5 +20,9 @@ class message extends Model
     public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');
+    }
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
     }
 }

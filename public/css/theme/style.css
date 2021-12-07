@@ -24,6 +24,7 @@ body {
 .chat-image,
 .chat-name {
     display: inline-block;
+    padding-right: 5px;
 }
 
 .chat-user-list {
@@ -47,6 +48,10 @@ body {
     position: relative;
 }
 
+.chat-image-header {
+    padding: 20px;
+}
+
 .chat-header {
     min-height: 60px;
     padding: 10px;
@@ -60,10 +65,20 @@ body {
     padding: 30px 50px;
     margin-bottom: 20px;
     position: relative;
+    overflow-y: scroll;
+}
+
+.messageFlex {
+    display: flex;
+    flex-direction: row;
+    /* justify-content: flex-end; */
+}
+
+.recever {
+    justify-content: flex-end;
 }
 
 .message-text {
-    margin-left: 45px;
     margin-top: -10px;
 }
 
@@ -86,14 +101,14 @@ body {
     opacity: 0.3;
 }
 
-.chat-photo{
+.chat-photo {
     border-radius: 50%;
     -webkit-border-radius: 50%;
     -moz-border-radius: 50%;
     -ms-border-radius: 50%;
     -o-border-radius: 50%;
 }
-.text-succuess{
-    color: #32CD32
-;
+
+.text-succuess {
+    color: #32CD32;
 }

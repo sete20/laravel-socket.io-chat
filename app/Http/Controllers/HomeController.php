@@ -24,6 +24,7 @@ class HomeController extends Controller
     public function index()
     {
         $users = \Auth::user()->friends;
-        return view('home')->with(['users' => $users]);
+        $groups = \Auth::user()->groups->where('status', 2);
+        return view('home')->with(['users' => $users, 'groups' => $groups]);
     }
 }

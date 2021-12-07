@@ -37,6 +37,41 @@
             </p>
         </div>
     </div>
+    <div class=" row chat-row">
+        <div class="col-md-3">
+            <div class="users">
+                <h5>groups</h5>
+                <ul class="list-group list-chat-item">
+                    @forelse($groups as $group)
+                        <li class="chat-user-list">
+                            <a href="{{ route('group.message.conversation', $group->id) }}">
+                                <div class="chat-image">
+                                    <img class="chat-photo" src="{{ asset('img/users/' . $group->GroupImage) }}"
+                                        alt="">
+                                </div>
+                                <div class="chat-name font-weight-bold">
+                                    {{ $group->name }}
+                                </div>
+
+                            </a>
+                        </li>
+                    @empty
+                        .... please join to more groups
+                    @endforelse
+
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <h1>
+                Groups Section
+            </h1>
+
+            <p class="lead">
+                Select Group from the list to begin conversation.
+            </p>
+        </div>
+    </div>
     @push('scripts')
         <script>
             $(function() {

@@ -7,7 +7,6 @@
                 <h5>users</h5>
                 <ul class="list-group list-chat-item">
                     @forelse($users as $userList)
-
                         <li class="chat-user-list @if ($userList->id == $user->id)  active @endif">
                             <a href="{{ route('message.conversation', $userList->id) }}">
                                 <div class="chat-image">
@@ -44,24 +43,51 @@
 
             <div class="chat-body" id="chatBody">
                 @foreach ($messages as $message)
-                    <div class="message-listing" id="messageWrapper">
-                        <div class="row message align user-info">
-                            <div class="chat-image">
-                                <img class="chat-photo"
-                                    src="{{ asset('/img/users/' . $message->sender->personalImage) }}" alt="">
-                            </div>
-                            <div class="chat-name font-weight-bold">
+                    @if ($message->sender_id !== Auth::user()->id)
 
-                                <span class="text-gray-500 small time">{{ $message->sender->name }} -
-                                    {{ $message->created_at->diffForHumans() }}</span>
+                        <div class="message-listing" id="messageWrapper">
+                            <div class="row message align user-info">
+                                <div class="chat-image">
+                                    <img class="chat-photo" src="{{ asset('/img/users/' . $user->personalImage) }}"
+                                        alt="">
+                                </div>
+                                <div class="chat-name font-weight-bold">
+                                    <span class="text-gray-500 small time">{{ $message->sender->name }}</span>
+                                    <br>
+                                    <span class="text-gray-500 small time">{{ $message->created_at }}</span>
+
+                                </div>
+                            </div>
+                            <div class="col-md12 message-contnet">
+                                <div class="message-text">
+                                    {{ $message->content }}
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md12 message-contnet">
-                            <div class="message-text">
-                                {{ $message->content }}
+                    @else
+                        <div class="message-listing recever" id="messageWrapper">
+                            <div class="row message align user-info">
+                                <div class="chat-image">
+                                    <img class="chat-photo" src="{{ asset('/img/users/' . $user->personalImage) }}"
+                                        alt="">
+                                </div>
+                                <div class="d-flex flex-column">
+                                    <div class="chat-name font-weight-bold">
+                                        <span class="text-gray-500 small time">{{ $message->sender->name }}</span>
+                                        <br>
+                                        <span class="text-gray-500 small time">{{ $message->created_at }}</span>
+
+                                    </div>
+                                </div>
+                                <div class="col-md12 message-contnet">
+                                    <div class="message-text">
+                                        {{ html_entity_decode($message->content) }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+
+                    @endif
                 @endforeach
 
             </div>
@@ -204,7 +230,7 @@
                         '\n' +
                         '<div class="chat-name font-weight-bold">\n' +
                         name +
-                        '<span class="text-gray-500 small time" title="' + dateFormat(message.created_at) + '">\n' +
+                        '<span class="text-gray-500 small time" title="' + dataFormat(message.created_at) + '">\n' +
                         timeFormat(message.created_at) + '</span>\n' +
                         '</div>\n' +
                         '</div>\n';
